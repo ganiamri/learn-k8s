@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: kubeapp-mongodb-statefulset
+  labels:
+    app: kubeapp-mongodb
+  namespace: kubeapp
+spec:
+  serviceName: "kubeapp-mongodb-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeapp-mongodb
+  template:
+    metadata: 
+      labels:
+        app: kubeapp-mongodb    
+    spec:
+      terminationGracePeriodSeconds: 10
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "0"
+      containers:
+      - name: kubeapp-mongodb
+        image: mongo:4.1
+        ports:
+        - containerPort: 27017
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 200Mi
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kubeapp-mongodb-secret
+              key: mongo-root-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: kubeapp-mongodb-secret
+              key: mongo-root-password
+        volumeMounts:
+          - name: kubeapp-mongo-persistent-storage
+            mountPath: /data/db
+          - name: kubeapp-mongodb-initdb
+            mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: kubeapp-mongodb-initdb
+        configMap:
+          name: kubeapp-mongodb-initdb-configmap
+  volumeClaimTemplates:
+  - metadata:
+      name: kubeapp-mongo-persistent-storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "standard"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: kubeapp-app-deployment
+  labels:
+    app: kubeapp-app
+  namespace: kubeapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeapp-app
+  template:
+    metadata: 
+      labels:
+        app: kubeapp-app    
+    spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "0"
+      containers:
+      - name: kubeapp-app
+        image: ganiamri/kube-app
+        ports:
+        - containerPort: 9080
+        env:
+        - name: APP_ADDRESS
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-app-configmap
+              key: app_address
+        - name: APP_MONGODB_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-app-configmap
+              key: app_mongodb_server
+        - name: APP_MONGODB_DB_NAME
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-app-configmap
+              key: app_mongodb_db_name
+        - name: APP_MONGODB_TIMEOUT
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-app-configmap
+              key: app_mongodb_timeout
+        - name: APP_MONGODB_USERNAME
+          valueFrom: 
+            secretKeyRef:
+              name: kubeapp-app-secret
+              key: app_mongodb_username
+        - name: APP_MONGODB_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: kubeapp-app-secret
+              key: app_mongodb_password

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: kubeapp-app-configmap
+  namespace: kubeapp
+data:
+  app_address: :9080
+  app_mongodb_server: kubeapp-mongodb-service:27017
+  app_mongodb_db_name: kubeapp
+  app_mongodb_timeout: 10s
