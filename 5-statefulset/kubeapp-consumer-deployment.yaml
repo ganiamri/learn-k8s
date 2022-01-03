@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: kubeapp-consumer-deployment
+  labels:
+    app: kubeapp-consumer
+  namespace: kubeapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeapp-consumer
+  template:
+    metadata: 
+      labels:
+        app: kubeapp-consumer    
+    spec:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "0"
+      containers:
+      - name: kubeapp-consumer
+        image: ganiamri/kube-consumer
+        ports:
+        - containerPort: 9081
+        env:
+        - name: CONSUMER_ADDRESS
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-consumer-configmap
+              key: consumer_address
+        - name: CONSUMER_KUBEAPP_ADDRESS
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-consumer-configmap
+              key: consumer_app_server
+        - name: CONSUMER_KUBEAPP_TIMEOUT
+          valueFrom: 
+            configMapKeyRef:
+              name: kubeapp-consumer-configmap
+              key: consumer_app_timeout

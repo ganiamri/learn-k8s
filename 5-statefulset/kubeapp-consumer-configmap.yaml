@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: kubeapp-consumer-configmap
+  namespace: kubeapp
+data:
+  consumer_address: :9081
+  consumer_app_server: http://kubeapp-app-service:9080
+  consumer_app_timeout: 10s
